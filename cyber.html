@@ -21,6 +21,7 @@
     <main>
       <section id="hero">
         <img src="/assets/images/images.jpeg" alt="tmp" />
+        <div id="hero-overlay"></div>
         <div id="title-case">
           <h1 id="title">De la requête au serveur</h1>
           <h3>Sécuriser chaque maillon du Web</h3>
@@ -38,12 +39,154 @@
           authentifier son identité et établire un tunnel de communication
           chiffré avant même le transfert du premier octet HTML.
         </p>
+        <div class="content card-box">
+          <div class="card">
+            <h3>Étape 1</h3>
+            <h4>Résolution DNS</h4>
+            <p>
+              Le navigateur interroge un résolveur DNS pour traduire le nom de
+              domaine lisible par l'humain en adresse I¨routable.L'extension
+              DNSSEC ajoute une signature cryptographique à ces enregistrements
+              afin d'empêcher toute falsification de la réponse (DNS spoofing).
+            </p>
+          </div>
+          <div class="card">
+            <h3>Étape 2</h3>
+            <h4>Connexion TCP</h4>
+            <p>
+              Une fois l'afresse IP obtenue, le client et le serveur établissent
+              une connexion fiable via la poignée de main en trois temps (3-ways
+              handshake, <code>SYN</code>, <code>SYN-ACK</code>,
+              <code>ACK</code>), garantissant que les paquets arriveront dans
+              l'ordre et sans perte.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Étape 3</h3>
+            <h4>Negociation TLS (HTTPS)</h4>
+            <p>
+              Le serveur présente son certificat numérique signé par une
+              autorité de confiance. Le client vérifie son authenticité, puis
+              les deux parties utilisent la cryptographie asymétrique pour
+              s'accorder sur une clé de session éphémère.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Étape 4</h3>
+            <h4>Échange HTTP chiffré</h4>
+            <p>
+              Le tunnel sécurisé est actif. Toutes les requêtes HTTP et les
+              réponses du serveur (pages HTML, feuilles CSS, données de
+              formulaire) circulent désormais chiffrées via un algorithme
+              symétrique rapide, illisibles pour un intercepteur sur le réseau.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section class="content-section">
         <div class="title-box">
           <h2>Côté code</h2>
           <h3>Comprendre et bloquer les failles</h3>
+        </div>
+        <p class="intro">
+          Un transport chiffré en HTTPS protège les données en transit, mais ne
+          corrige pas un code vulnérable. La majorité des compromission web
+          exploite des entrées utilisateur mal contrôlées côté client ou côté
+          serveur.
+        </p>
+        <div class="content card-box">
+          <div class="card">
+            <h3>Injection SQL (SQLi)</h3>
+            <div class="split">
+              <div>
+                <h4>Le mécanisme</h4>
+                <p>
+                  Lorsqu'une application concatène directement la saisie d'un
+                  formulaire dans une requête de base de données sans filtrage,
+                  un ataquant peut modifier la structure même de la requête pour
+                  contourner une authentification ou extrairre des tables
+                  entières.
+                </p>
+              </div>
+              <div>
+                <h4>La parade</h4>
+                <p>
+                  Utiliser systhématiquement des <b>requêtes préparées</b> (<em
+                    >Prepared Statements</em
+                  >) qui séparent strictement les instructions SQL des données
+                  fournies par l'utilisateur, et appliquer le principe du
+                  moindre privilège sur le compte SQL de l"application.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Cross-Site Scripting (XSS)</h3>
+            <div class="split">
+              <div>
+                <h4>Le mécanisme</h4>
+                <p>
+                  Une faille XSS survient lorsqu'un site réaffiche des données
+                  saisies par un utilisateur (commentaire, profil, paramètre
+                  d'URL) sans le neutraliser. Un acteur malveillant peut alors
+                  injecter du code Javascript qui s'exécutera directement dans
+                  le navigateur des autres visiteurs.
+                </p>
+              </div>
+              <div>
+                <h4>La parade</h4>
+                <p>
+                  Échapper systématiquement tout les charactères spéciaux HTML
+                  avant affichage et déployer un en-tête HTTP
+                  Content-Security-Policy (CSP) pour restreindre l'origine des
+                  scripts autorisés à s'exécuter.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Mauvaise configuration des en-têtes HTTP</h3>
+            <div class="split">
+              <div>
+                <h4>Le mécanisme</h4>
+                <p>
+                  Par défaut, un serveur web peut laisser passer des requêtes
+                  non sécurisées, autoriser l'intégration du site dans une
+                  <code>iframe</code> externe (Clickjacking) ou exposer des
+                  cookies de session accessibles via JavaScript.
+                </p>
+              </div>
+              <div>
+                <h4>La parade</h4>
+                <p>
+                  Forcer l'usage exclusif du HTTPS avec <b>HSTS</b>, isoler les
+                  cookies sensibles via les attributs <code>HttpOnly</code>,
+                  <code>Secure</code> et <code>SameSite</code>, et bloquer
+                  l'embarquement non autorizé avec <code>X-Frame-Options</code>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>
+            Exemple d'en-têtes de sécurité HTTP recommandés (configuration
+            serveur)
+          </h3>
+          <div class="code-bloc">
+            <header>
+              <p>texte (En-Tête HTTP)</p>
+              <button>Copier</button>
+            </header>
+            <pre>
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+Content-Security-Policy: default-src 'self'; img-src 'self' data:;
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+            </pre>
+          </div>
         </div>
       </section>
 
@@ -52,9 +195,66 @@
           <h2>Côté infrastructure</h2>
           <h3>Durcire le serveur d'hébérgement</h3>
         </div>
+        <p class="intro">
+          Une fois le code sécurisé, il faut réduire au minimum la surface
+          d'attaque du système d'exploitation qui l'héberge. Le durcissement
+          (hardening) d'un serveur Linux repose sur une défense en profondeur,
+          si une couche cède, les suivantes bloquent la progression.
+        </p>
+        <div class="schema">
+          <div class="couche">
+            <h4>Exposition réseau & Tubbels chiffrés</h4>
+            <p>
+              Plûtot que d'ouvrir directement les ports d'adrministration sur
+              Internet, l'exposition des services passe par un tunnel chiffré ou
+              un pare-feu restrictif appliquant une politique de blocage par
+              défaut (Deny by default). Seuls les flux web légitimes
+              (HTTP/HTTPS) atteignent la machine.
+            </p>
+          </div>
+          <div class="couche">
+            <h4>Accès d'administration SSH verrouillé</h4>
+            <p>
+              L'authentification par mot de passe est totalement désactivé au
+              profit d'une paire de clé cryptographique asymétriques
+              (<b>ed25519</b>). La connexion directe avec le compte root est
+              interdite, obligeant chaque administrateur à passer par un
+              utilisateur nominatif et une élévation de privilèges journalisée
+              (<code>sudo</code>).
+            </p>
+          </div>
+          <div class="couche">
+            <h4>Cloisonnement des sevices et permissions</h4>
+            <p>
+              Les applications web tournent sous des utilisateurs système dédiès
+              sans shell interactif, avec des droits de lecture/écriture
+              strictement limités aux répertoires nécessaires. L'utilisation de
+              conteneurs isolés permet également de séparer chaque brique
+              logicielle du système hÔte.
+            </p>
+          </div>
+          <div class="couche">
+            <h4>Mises à jour et supervision</h4>
+            <p>
+              L'application régulière des correctifs de sécurité du noyau et des
+              paquets systèmes, couplée à l'analyse des journeux d'événement
+              (logs) et au blocage automatique des tentatives d'intrusion
+              répétées, assure le maintien en conditions de sécurité dans la
+              durée.
+            </p>
+          </div>
+        </div>
       </section>
 
-      <section class="content-section"></section>
+      <section class="content-section">
+        <h2>Passer de la théorie à la pratique</h2>
+        <p>
+          Découvrez les outils d'analyse réseau et de diagnostic utilisés pour
+          auditer une infrastrucure, ainsi qu'une chexklist d'hygiène numérique
+          pour sécuriser vos environnements au quotiduen.
+        </p>
+        <button>Explorer la boîte à outils & la checklist</button>
+      </section>
     </main>
     <footer>
       <p>
